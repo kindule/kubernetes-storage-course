@@ -1,0 +1,31 @@
+# gcloud compute disks create --size=1GiB --zone=europe-west1-b mysqlVolume
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mysql
+spec:
+  selector:
+    matchLabels:
+      app: mysql
+  template:
+    metadata:
+      labels:
+        app: mysql
+    spec:
+      volumes:
+      - name: mysql-persistent-storage
+        gcePersistentDisk:
+          claimName: mysql-volume
+          fsType: ext4
+      containers:
+      - image: mysql:5.7.19
+        name: mysql
+        env:
+        - name: MYSQL_ROOT_PASSWORD
+          value: password
+        ports:
+        - containerPort: 3306
+          name: mysql
+        volumeMounts:
+        - name: mysql-persistent-storage
+          mountPath: /var/lib/mysql
